@@ -1,0 +1,42 @@
+import cv2
+import numpy as np
+
+def analyze_color_histogram(image_path):
+    image = cv2.imread(image_path)
+
+    if image is None:
+        print("❌ Error: Image not found")
+        return
+
+    print("✅ Image loaded successfully")
+
+    b, g, r = cv2.split(image)
+
+    hist_b = cv2.calcHist([b], [0], None, [256], [0, 256])
+    hist_g = cv2.calcHist([g], [0], None, [256], [0, 256])
+    hist_r = cv2.calcHist([r], [0], None, [256], [0, 256])
+
+    print("🔵 Blue Peak Intensity :", np.argmax(hist_b))
+    print("🟢 Green Peak Intensity:", np.argmax(hist_g))
+    print("🔴 Red Peak Intensity  :", np.argmax(hist_r))
+
+    hist_img = np.zeros((300, 256, 3), dtype=np.uint8)
+
+    cv2.normalize(hist_b, hist_b, 0, 300, cv2.NORM_MINMAX)
+    cv2.normalize(hist_g, hist_g, 0, 300, cv2.NORM_MINMAX)
+    cv2.normalize(hist_r, hist_r, 0, 300, cv2.NORM_MINMAX)
+
+    for i in range(1, 256):
+        cv2.line(hist_img, (i-1, 300-int(hist_b[i-1])), (i, 300-int(hist_b[i])), (255, 0, 0), 1)
+        cv2.line(hist_img, (i-1, 300-int(hist_g[i-1])), (i, 300-int(hist_g[i])), (0, 255, 0), 1)
+        cv2.line(hist_img, (i-1, 300-int(hist_r[i-1])), (i, 300-int(hist_r[i])), (0, 0, 255), 1)
+
+    cv2.imshow("Original Image", image)
+    cv2.imshow("Color Histogram (OpenCV)", hist_img)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+# 🔴 VERY IMPORTANT: function call
+analyze_color_histogram("computer.jpg")
